@@ -1,3 +1,5 @@
+require 'pry'
+
 def game_hash
     hash = {
       home: {
@@ -114,115 +116,90 @@ def game_hash
       }
     }
   end
-  def num_points_scored (name)
-    player_points = nil
-    game_hash.each do |home_away,team_info|
-      team_info.each do |player_data, data|
-        if player_data == :players
-          data.each do |player_name, stats|
-            if player_name == name
-              player_points = stats[:points]
-            end
-          end
-        end
+
+
+  def num_points_scored(name)
+   game_hash.each do |location, team_data|
+      team_data[:players].each do |player_name,data|
+         if player_name == name
+            return data[:points]
+         end
       end
-    end
-    player_points
-  end
+   end
+end
 
-
-def shoe_size (name)
-player_shoe = nil
-game_hash.each do |home_away,team_info|
-  team_info.each do |player_data, data|
-    if player_data == :players
-      data.each do |player_name, stats|
-        if player_name == name
-          player_shoe = stats[:shoe]
-        end
+def shoe_size(name)
+  game_hash.each do |location, team_data|
+    team_data[:players].each do |player_name, data|
+      if player_name == name
+        return data[:shoe]
       end
     end
   end
 end
-player_shoe
-end
-
 
 def team_colors (name)
-team_colors = [] #empty array  to fill with answers
-game_hash.each do |home_away,team_info|
-    team_info.each do |team_data,team_name|
-      if team_name == name
-      team_colors = game_hash[home_away][:colors]
-        end
-      end
-    end
-
-team_colors.flatten #removing one of the layers in the array- compressing to one level
+  game_hash.each do |location, team_data|
+   if team_data[:team_name] == name
+     #binding.pry
+     return team_data[:colors]
+   end
+ end
 end
 
 def team_names
-  team_array=[]
-  game_hash.each do |home_away,team|
-    team.each do |team_data, data|
-      if team_data==:team_name
-        team_array.push(data) #two teams , running again. push adds to, doesnt override
+  game_hash.collect do |location, team_data|
+  team_data[:team_name]
+end
+end
+
+def player_numbers(name)
+  array = []
+   game_hash.each do |location, team_data|
+    if team_data[:team_name] == name
+      team_data[:players].each do |player_name, value|
+        #binding.pry
+        array << value[:number]
       end
     end
   end
-  team_array
+array
+ end
+
+def player_stats(name)
+   game_hash.each do |location, team_data|
+      team_data[:players].each do |player_name, value|
+         if player_name == name
+            return value
+         end
+      end
+   end
 end
 
-  def player_numbers(team)
-    team_jersey=[]
-    if game_hash[:home][:team_name]== team #at second level to see team, if team name is = then continue
-      game_hash[:home][:players].each do |player_name,stats| #look through stats, if stat is equal to number then i want it.
-      stats.each do |stats_key,stat|
-        if stats_key == :number
-                  team_jersey.push(stat)
-                end
-              end
-            end
-    else game_hash[:away][:team_name]== team #at second level to see team, if team name is = then continue
-        game_hash[:away][:players].each do |player_name,stats| #look through stats, if stat is equal to number then i want it.
-        stats.each do |stats_key,stat|
-          if stats_key == :number
-                    team_jersey.push(stat)
-                  end
-                end
-              end
-            end
-    team_jersey
-      end
-
-
-    def player_stats (name)
-      player_data = nil
-      game_hash.each do |home_away,team_info|
-        team_info.each do |player, data|
-          if player == :players
-            data.each do |player_name, stats|
-              if player_name == name
-                player_data=stats
-              end
-            end
+    def big_shoe_rebounds
+       shoe_size = 0
+       rebound = 0
+       game_hash.each do |location, team_data|
+          team_data[:players].each do |player_name, value|
+             if value[:shoe] > shoe_size
+                shoe_size = value[:shoe]
+                rebound = value[:rebounds]
+             end
           end
-        end
-      end
-      player_data
-      end
+       end
+       rebound
+    end
 
-      def big_shoe_rebounds
-        biggest = 0
-        rebounds = 0
-        game_hash.each do |home_away, keys|
-          keys[:players].each do |player, stats| #
-            size=stats[:shoe] #get shoe, if shoe is bigger than 0, rewrite to make biggest then makes it equal to rebounds, then goes to next.
-              if size>biggest # move on to next player with biggest shoe size
-                biggest=size
-                rebounds=stats[:rebounds]
-              end
-            end
-          end
-          rebounds
-        end
+def most_points_scored
+  most_points=0
+  player=nil
+  game_hash.each do|location, team_data|
+    team_data[:players].each do |player_name, value|
+      if value[:points] > most_points
+        most_points=value[:points]
+        player=player_name
+      end
+    end
+  end
+  player
+end
